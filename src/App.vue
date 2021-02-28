@@ -23,28 +23,36 @@
       <div v-if="messages.errors" class="errorsfield">
         <p>{{ messages.errors }}</p>
       </div>
-      <button class="btn-add" v-on:click="validation() ? btnAdd() : pass">
+      <button class="btn btn-add" v-on:click="validation() ? btnAdd() : pass">
         add
       </button>
     </div>
     <hr />
-    <div class="filter">
-      <input type="text" class="filterinput">
-      <button class="prevpage">prev </button>
-      <button class="nextpage"> next </button>
+    <div class="filter" v-if="tickers.length!=0">
+      <p>Filter:</p>
+      <input type="text" class="filterinput" v-model="filter" @input="filterpage=1">
+      <button class="btn prevpage"  v-if="filterpage>1" @click="filterpage--">	
+
+&#129128; </button>
+      <p>{{filterpage}} from {{Math.round((tickers.length+2)/6)}}</p>
+      <button class="btn nextpage" @click="filterpage++" v-if="tickers.length/6>filterpage" > 	
+	
+	
+	
+&#129130; </button>
     </div>
     <div class="forwallets">
       <div
         @click="selected === t ? (selected = null) : (selected = t)"
-        v-for="(t, i) in tickers"
+        v-for="(t, i) in filteredTickers"
         :key="i"
         class="walletblock"
         :class="{ active: t === selected }"
       >
         <p>{{ t.name }}/USD</p>
         <p>{{ t.fullName }}</p>
-        <h1>{{ t.price }}</h1>
-        <h4 @click.stop="btnDelete(i)">Delete</h4>
+        <h1 :class="{down:t.price<t.oldprice,up:t.price>t.oldprice}">{{ t.price }}</h1>
+        <h4 @click.stop="btnDelete(t.name)">Delete</h4>
       </div>
     </div>
     <hr />
@@ -53,11 +61,12 @@
 
       <div class="graph">
         <div
-          v-for="key in Object.keys(maxHeightBar)"
+          v-for="(key,ind) in Object.keys(maxHeightBar)"
           :key="key"
           :title="key"
           :style="{ height: maxHeightBar[key] + '%' }"
           class="bar"
+          :class="{up:maxHeightBar[(Object.keys(maxHeightBar)[ind-1])]< maxHeightBar[(Object.keys(maxHeightBar)[ind])],down:maxHeightBar[(Object.keys(maxHeightBar)[ind-1])]>maxHeightBar[(Object.keys(maxHeightBar)[ind])]}"
         ></div>
       </div>
     </div>
@@ -69,6 +78,8 @@ export default {
   name: "App",
   data() {
     return {
+      filter:'',
+      filterpage:1,
       ticker: "",
       tickers: [],
       coinsList: null,
@@ -78,6 +89,7 @@ export default {
     };
   },
   watch: {
+    
     ticker: function() {
       if (this.tickersName.includes(this.ticker?.toUpperCase())) {
         this.messages.errors = "This crypto is selected alredy";
@@ -90,6 +102,11 @@ export default {
     
   },
   computed: {
+    filteredTickers(){
+      const start=(this.filterpage-1)*6
+      const end=this.filterpage*6
+      return this.tickers.filter(el=>el.name.includes(this.filter.toUpperCase())).slice(start,end)
+    },
     tickersMessages() {
       if (this.ticker != "") {
         return Object.keys(this.coinsList)
@@ -148,8 +165,9 @@ export default {
         );
 
         const data = await f.json();
-
-        this.tickers.find(el => el.name === tickerName)?this.tickers.find(el => el.name === tickerName).price= data.USD:null;
+        let targetTicker=this.tickers.find(el => el.name === tickerName)
+        targetTicker?targetTicker.oldprice=targetTicker.price:null;
+        targetTicker?targetTicker.price= data.USD:null;
 
         this.graph[tickerName]
           ? this.graph[tickerName].push(data.USD)
@@ -179,11 +197,17 @@ export default {
       this.tickers.push(added);
       this.updatePrice(this.ticker)
       this.ticker = "";
+      this.filter=''
+      this.filterpage=Math.round((this.tickers.length+2)/6)
       
       
     },
-    btnDelete(i) {
-      this.tickers.splice(i, 1);
+    btnDelete(name) {
+      let ind=this.tickers.findIndex(el=>el===name)
+      this.tickers.splice(ind, 1);
+      if (Math.round((this.tickers.length+2)/6)<this.filterpage){
+        this.filterpage--
+      }
     }
   }
 };

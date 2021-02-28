@@ -66,6 +66,7 @@ body{
     text-align: center;
     overflow:hidden;
 }
+
 .walletblock::before{
     content:'';
     position:absolute;
@@ -127,6 +128,9 @@ body{
     align-items: flex-end;
     position: relative;
     gap: 0.1em;
+    padding-top:0.5em  ;
+    padding-left:0.5em  ;
+    overflow:scroll;
 
 }
 
@@ -136,7 +140,7 @@ body{
 .bar{
     width:1em;
     height:50%;
-    background-color: indigo;
+    background-color: rgb(110, 108, 112);
 }
 .messagesfield{
     display:flex;
@@ -160,4 +164,36 @@ body{
     position: absolute;
     top: 1em;
     left : 1em;
+}
+.filter{
+    display:flex;
+    position:relative;
+    align-items: center;
+    justify-content: start;
+    gap: 0.3em;
+    width:100%;
+    max-height:1.5em;
+    padding-left:2em;
+}
+.btn{
+    min-width:2.5em;
+    min-height:1.5em;
+    border-radius:1em;
+    box-shadow:2px 3px rgb(46, 44, 44);
+    transition:0.3s;
+}
+.btn:hover{
+    box-shadow:3px 4px rgb(32, 31, 31);  
+}
+.filterinput{
+    width:3em;
+    height:1em;
+    border-radius: 0.3em;
+   
+}
+.down{
+    background-color:rgba(214, 0, 0, 0.767);
+}
+.up{
+    background-color:rgba(29, 230, 29, 0.89);
 }
