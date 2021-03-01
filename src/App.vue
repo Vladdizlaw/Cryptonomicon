@@ -85,6 +85,7 @@ export default {
       coinsList: null,
       selected: null,
       graph: {},
+      
       messages: { mess: null, errors: null }
     };
   },
@@ -145,6 +146,7 @@ export default {
     const data = await resp.json();
     this.coinsList = data.Data;
     localStorage.tickersList?this.tickers=JSON.parse(localStorage.getItem('tickersList')):null
+    
     this.tickers.forEach(el=>{
       this.updatePrice(el.name)
     })
@@ -153,7 +155,7 @@ export default {
 
    
   },
-  updated(){
+  update(){
     localStorage.setItem('tickersList',JSON.stringify(this.tickers))
    
   },
@@ -161,7 +163,7 @@ export default {
     updatePrice(tickerName){
       setInterval(async () => {
         let f = await fetch(
-          `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&api_key=e471e53bb40142e09d4decbeb1e49a9943383e0b588a08f7c6f60d118fbe82ab`
+          `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&api_key=1ee2f607bb918c3d5b039251e1cfc0bac70df8a3092d7f5e4f18bcc2618e2de2`
         );
 
         const data = await f.json();
@@ -199,12 +201,14 @@ export default {
       this.ticker = "";
       this.filter=''
       this.filterpage=Math.round((this.tickers.length+2)/6)
+      localStorage.setItem('tickersList',JSON.stringify(this.tickers))
       
       
     },
     btnDelete(name) {
-      let ind=this.tickers.findIndex(el=>el===name)
+      let ind=this.tickers.findIndex(el=>el.name===name)
       this.tickers.splice(ind, 1);
+       localStorage.setItem('tickersList',JSON.stringify(this.tickers))
       if (Math.round((this.tickers.length+2)/6)<this.filterpage){
         this.filterpage--
       }
