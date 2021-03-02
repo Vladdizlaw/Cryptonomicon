@@ -143,6 +143,14 @@ body{
     height:50%;
     background-color: rgb(110, 108, 112);
 }
+.controlpages{
+    display: flex;
+    height:1em;
+    justify-content: center;
+    align-items: center;
+    gap:0.3em;
+
+}
 .messagesfield{
     display:flex;
     flex-direction: row;

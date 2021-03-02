@@ -31,6 +31,7 @@
     <div class="filter" v-if="tickers.length!=0">
       <p>Filter:</p>
       <input type="text" class="filterinput" v-model="filter" @input="filterpage=1">
+      <div class="controlpages" v-show="this.tickers.length>6">
       <button class="btn prevpage"  v-if="filterpage>1" @click="filterpage--">	
 
 &#129128; </button>
@@ -40,6 +41,7 @@
 	
 	
 &#129130; </button>
+</div>
     </div>
     <div class="forwallets">
       <div
@@ -59,7 +61,7 @@
     <div v-if="selected" class="outputdisplay">
       <button @click="selected = null" class="closeoutput">X</button>
 
-      <div class="graph">
+      <div v-if ="selected!=null" class="graph">
         <div
           v-for="(key,ind) in Object.keys(maxHeightBar)"
           :key="key"
@@ -100,6 +102,14 @@ export default {
 
       this.messages.mes = this.tickersMessages;
     },
+    filter(){
+      
+      window.history.pushState(true,'',`${window.location.pathname}?filter=${this.filter}&page=${this.filterpage}`)    
+    },
+    filterpage(){
+       window.history.pushState(true,'',`${window.location.pathname}?filter=${this.filter}&page=${this.filterpage}`)
+    },
+    
     
   },
   computed: {
@@ -125,8 +135,8 @@ export default {
     },
 
     maxHeightBar() {
-      let result = {};
-
+      let result={}
+     
       if (this.graph[this.selected.name]) {
         let max = Math.max(...this.graph[this.selected.name]);
         let min = Math.min(...this.graph[this.selected.name]);
@@ -146,7 +156,13 @@ export default {
     const data = await resp.json();
     this.coinsList = data.Data;
     localStorage.tickersList?this.tickers=JSON.parse(localStorage.getItem('tickersList')):null
-    
+     const url=new URL(window.location)
+      if(url.searchParams.has('filter')){
+      this.filter=url.searchParams.get("filter")
+      }
+      if(url.searchParams.has('page')){
+      this.filterpage=url.searchParams.get("page")
+      }
     this.tickers.forEach(el=>{
       this.updatePrice(el.name)
     })
@@ -155,7 +171,7 @@ export default {
 
    
   },
-  update(){
+  updated(){
     localStorage.setItem('tickersList',JSON.stringify(this.tickers))
    
   },
@@ -206,7 +222,11 @@ export default {
       
     },
     btnDelete(name) {
+      
       let ind=this.tickers.findIndex(el=>el.name===name)
+      if(this.tickers[ind]==this.selected){
+        this.selected=null
+      }
       this.tickers.splice(ind, 1);
        localStorage.setItem('tickersList',JSON.stringify(this.tickers))
       if (Math.round((this.tickers.length+2)/6)<this.filterpage){
