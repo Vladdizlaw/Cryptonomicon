@@ -1,11 +1,11 @@
-<template>
+olo<template>
   <div class="wraper">
     <div class="forinput">
       <p>ticker</p>
       <input
         type="text"
         v-model="ticker"
-        @keydown.enter="validation() ? btnAdd() : pass"
+        @keydown.enter="validation() ? btnAdd() : null"
         class="generalinput"
       />
       <div v-if="messages.mes" class="messagesfield">
@@ -14,7 +14,7 @@
           :key="ind"
           @click="
             ticker = mes;
-            validation() ? btnAdd() : pass;
+            validation() ? btnAdd() : null;
           "
         >
           {{ mes }}
@@ -94,6 +94,8 @@ export default {
   watch: {
     
     ticker: function() {
+      //Смотрим за ticker, если он есть в вычисляемых свойствах  filteredTickers, записываем ошибку 
+      //в объект data messages.errors
       if (this.tickersName.includes(this.ticker?.toUpperCase())) {
         this.messages.errors = "This crypto is selected alredy";
       } else {
@@ -102,23 +104,33 @@ export default {
 
       this.messages.mes = this.tickersMessages;
     },
-    filter(){
-      
-      window.history.pushState(true,'',`${window.location.pathname}?filter=${this.filter}&page=${this.filterpage}`)    
-    },
-    filterpage(){
-       window.history.pushState(true,'',`${window.location.pathname}?filter=${this.filter}&page=${this.filterpage}`)
+   
+    filterAndPage(value){
+      //Смотрим за вычисляемым свойством  filterAndPage(оно возращает объект с filter:this.filter и
+      //page:this.filterpage),если оно меняется то меняем адресную строку 
+       window.history.pushState(true,'',`${window.location.pathname}?filter=${value.filter}&page=${value.page}`)
     },
     
     
   },
+
   computed: {
+    filterAndPage(){
+      //Свойство возращающее this.filter и this.filterpage в ввиде объекта
+      return{
+        filter:this.filter,
+        page:this.filterpage
+      }
+    },
     filteredTickers(){
+      //Свойство отображающее тикеры согласно filter и разбивка на страницы
       const start=(this.filterpage-1)*6
       const end=this.filterpage*6
       return this.tickers.filter(el=>el.name.includes(this.filter.toUpperCase())).slice(start,end)
     },
     tickersMessages() {
+      //Отоброжение подсказок при вводе в тикер.Проверяет на включение значения ticker в coinList , 
+      //сортирует по размеру и выводит 4 результата
       if (this.ticker != "") {
         return Object.keys(this.coinsList)
           .filter(el => el.includes(this.ticker?.toUpperCase()))
@@ -135,6 +147,7 @@ export default {
     },
 
     maxHeightBar() {
+      //Вывод графика , возвращает объект с данными высоты бара и ключом именем выбранного элемента
       let result={}
      
       if (this.graph[this.selected.name]) {
@@ -150,6 +163,10 @@ export default {
     }
   },
   async created() {
+    //при создпние запросом получает и записывает в coinList список валют,
+    //затем проверяет localstorage и если он есть берет из него данные и записывает в tickers
+    //после этого проверяет есть ли в url параметры filter и page и восстанавливает их если они есть
+    //далее для всех тикеров в tickers запускает updatePrice()
     const resp = await fetch(
       "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
     );
@@ -157,12 +174,11 @@ export default {
     this.coinsList = data.Data;
     localStorage.tickersList?this.tickers=JSON.parse(localStorage.getItem('tickersList')):null
      const url=new URL(window.location)
-      if(url.searchParams.has('filter')){
+      if((url.searchParams.has('filter'))||(this.filterpage=url.searchParams.get("page"))){
       this.filter=url.searchParams.get("filter")
+       this.filterpage=url.searchParams.get("page")
       }
-      if(url.searchParams.has('page')){
-      this.filterpage=url.searchParams.get("page")
-      }
+     
     this.tickers.forEach(el=>{
       this.updatePrice(el.name)
     })
