@@ -2,10 +2,10 @@
 export async function getCurrencyData (tickerName){
           const tickerListNames=tickerName.join(',') 
           console.log(tickerListNames)
-         let res = await fetch(
+         const res = await fetch(
     `https://min-api.cryptocompare.com/data/price?fsym=USD&tsyms=${tickerListNames}&api_key=${API}`
   )
-       let js= await res.json() 
-       
-        return js
+       const js= await res.json() 
+      
+        return Object.fromEntries(Object.entries(js).map(([name,price])=>[name,1/price]))
      }

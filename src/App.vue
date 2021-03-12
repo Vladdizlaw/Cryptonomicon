@@ -230,10 +230,10 @@ export default {
         this.tickers.forEach(el => {
         //Отображаем цены в божеском виде
         el.oldprice = el.price
-        el.price = 1/data[el.name]>1?( 1/data[el.name]).toFixed(3):( 1/data[el.name]).toPrecision(2)
+        el.price = data[el.name]>1?( data[el.name]).toFixed(2):( data[el.name]).toPrecision(2)
        
         this.graph[el.name]
-          ? this.graph[el.name].push(1/data[el.name]>1?( 1/data[el.name]).toFixed(3):( 1/data[el.name]).toPrecision(2))
+          ? this.graph[el.name].push(data[el.name]>1?( data[el.name]).toFixed(2):( data[el.name]).toPrecision(2))
           : (this.graph[el.name] = []);
          })  
      
