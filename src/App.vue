@@ -96,7 +96,11 @@
 </template>
 
 <script>
-import { getCurrencyData, subscribeToTicker, unsubscribeFromTicker } from "./api.js";
+import {
+  getCurrencyData,
+  subscribeToTicker,
+  unsubscribeFromTicker
+} from "./api.js";
 export default {
   name: "App",
   data() {
@@ -196,11 +200,13 @@ export default {
     );
     const data = await resp.json();
     this.coinsList = data.Data;
-    if(localStorage.tickersList){
-      this.tickers = JSON.parse(localStorage.getItem("tickersList"))
-      this.tickers.forEach(ticker=>{
-        subscribeToTicker(ticker.name,(price)=>{this.updateTicker(ticker.name,price)})
-      })
+    if (localStorage.tickersList) {
+      this.tickers = JSON.parse(localStorage.getItem("tickersList"));
+      this.tickers.forEach(ticker => {
+        subscribeToTicker(ticker.name, price => {
+          this.updateTicker(ticker.name, price);
+        });
+      });
     }
     const url = new URL(window.location);
     if (
@@ -219,11 +225,10 @@ export default {
     localStorage.setItem("tickersList", JSON.stringify(this.tickers));
   },
   methods: {
-    updateTicker(tickerName,price){
-     this.tickers.filter(t=>t.name===tickerName).forEach(t=>t.price=price)
-     
-      
-
+    updateTicker(tickerName, price) {
+      this.tickers
+        .filter(t => t.name === tickerName)
+        .forEach(t => (t.price = price));
     },
     async updatePrice() {
       if (!this.tickers.length) {
@@ -233,7 +238,7 @@ export default {
       let tickersNames = this.tickers.map(el => el.name);
 
       let data = await getCurrencyData(tickersNames);
-    
+
       this.tickers.forEach(el => {
         //Отображаем цены в божеском виде
         el.oldprice = el.price;
@@ -274,25 +279,26 @@ export default {
         fullName: this.coinsList[this.ticker?.toUpperCase()]["FullName"]
       };
       this.tickers.push(added);
-      subscribeToTicker(added.name,(price)=>{this.updateTicker(added.name,price)})
-      //После этого очишает инпут добавления  и фильтр ,переставляет страницу на первую 
-      // и записывает в локалсторэйдж 
+      subscribeToTicker(added.name, price => {
+        this.updateTicker(added.name, price);
+      });
+      //После этого очишает инпут добавления  и фильтр ,переставляет страницу на первую
+      // и записывает в локалсторэйдж
       this.ticker = "";
       this.filter = "";
       this.filterpage = Math.round((this.tickers.length + 2) / 6);
       localStorage.setItem("tickersList", JSON.stringify(this.tickers));
     },
     btnDelete(name) {
-      //Удаляет из массива по имени ,  убирает с него выбор и если страниц стало меньше 
+      //Удаляет из массива по имени ,  убирает с него выбор и если страниц стало меньше
       //то переставляет страницу и записывает в локал сторэйдж
       let ind = this.tickers.findIndex(el => el.name === name);
       if (this.tickers[ind] == this.selected) {
         this.selected = null;
       }
-       unsubscribeFromTicker(this.tickers[ind].name)
+      unsubscribeFromTicker(this.tickers[ind].name);
       this.tickers.splice(ind, 1);
-     
-      
+
       localStorage.setItem("tickersList", JSON.stringify(this.tickers));
       if (Math.round((this.tickers.length + 2) / 6) < this.filterpage) {
         this.filterpage--;
