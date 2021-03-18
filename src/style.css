@@ -120,7 +120,7 @@ body{
 }
 .graph{
     width:100%;
-    min-height:400px;
+    min-height:40vh;
     border:1px solid;
     display: flex;
     flex-direction: row;;

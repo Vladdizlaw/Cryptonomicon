@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import {getCurrencyData} from "./api.js"
+import { getCurrencyData, subscribeToTicker, unsubscribeFromTicker } from "./api.js";
 export default {
   name: "App",
   data() {
@@ -196,9 +196,12 @@ export default {
     );
     const data = await resp.json();
     this.coinsList = data.Data;
-    localStorage.tickersList
-      ? (this.tickers = JSON.parse(localStorage.getItem("tickersList")))
-      : null;
+    if(localStorage.tickersList){
+      this.tickers = JSON.parse(localStorage.getItem("tickersList"))
+      this.tickers.forEach(ticker=>{
+        subscribeToTicker(ticker.name,(price)=>{this.updateTicker(ticker.name,price)})
+      })
+    }
     const url = new URL(window.location);
     if (
       url.searchParams.has("filter") ||
@@ -208,41 +211,51 @@ export default {
       this.filterpage = url.searchParams.get("page");
     }
 
-    setInterval(()=>{
+    setInterval(() => {
       this.updatePrice();
-   },5000)
+    }, 5000);
   },
   updated() {
     localStorage.setItem("tickersList", JSON.stringify(this.tickers));
   },
   methods: {
-    async updatePrice () {
-      if (!this.tickers.length){
-       
-        return
-        }
-
-      
-        let tickersNames=this.tickers.map(el=>el.name)
-        
-        let data= await getCurrencyData(tickersNames)
-        console.log(data)
-        this.tickers.forEach(el => {
-        //Отображаем цены в божеском виде
-        el.oldprice = el.price
-        el.price = data[el.name]>1?( data[el.name]).toFixed(2):( data[el.name]).toPrecision(2)
-       
-        this.graph[el.name]
-          ? this.graph[el.name].push(data[el.name]>1?( data[el.name]).toFixed(2):( data[el.name]).toPrecision(2))
-          : (this.graph[el.name] = []);
-         })  
+    updateTicker(tickerName,price){
+     this.tickers.filter(t=>t.name===tickerName).forEach(t=>t.price=price)
      
       
+
+    },
+    async updatePrice() {
+      if (!this.tickers.length) {
+        return;
+      }
+
+      let tickersNames = this.tickers.map(el => el.name);
+
+      let data = await getCurrencyData(tickersNames);
+    
+      this.tickers.forEach(el => {
+        //Отображаем цены в божеском виде
+        el.oldprice = el.price;
+        el.price =
+          data[el.name] > 1
+            ? data[el.name].toFixed(2)
+            : data[el.name].toPrecision(2);
+        //Записываем цены с именем валюты для построения графика
+        this.graph[el.name]
+          ? this.graph[el.name].push(
+              data[el.name] > 1
+                ? data[el.name].toFixed(2)
+                : data[el.name].toPrecision(2)
+            )
+          : (this.graph[el.name] = []);
+      });
     },
     chooseMes(mes) {
       this.ticker = mes;
     },
     validation() {
+      //Валидация инпута добавления
       if (
         this.coinsList[this.ticker?.toUpperCase()] &&
         !this.tickersName.includes(this.ticker.toUpperCase())
@@ -254,24 +267,32 @@ export default {
     },
 
     btnAdd() {
+      //Добаляет выбранный тикер в массив tickers
       const added = {
         name: this.ticker.toUpperCase(),
         price: "--------",
         fullName: this.coinsList[this.ticker?.toUpperCase()]["FullName"]
       };
       this.tickers.push(added);
-     
+      subscribeToTicker(added.name,(price)=>{this.updateTicker(added.name,price)})
+      //После этого очишает инпут добавления  и фильтр ,переставляет страницу на первую 
+      // и записывает в локалсторэйдж 
       this.ticker = "";
       this.filter = "";
       this.filterpage = Math.round((this.tickers.length + 2) / 6);
       localStorage.setItem("tickersList", JSON.stringify(this.tickers));
     },
     btnDelete(name) {
+      //Удаляет из массива по имени ,  убирает с него выбор и если страниц стало меньше 
+      //то переставляет страницу и записывает в локал сторэйдж
       let ind = this.tickers.findIndex(el => el.name === name);
       if (this.tickers[ind] == this.selected) {
         this.selected = null;
       }
+       unsubscribeFromTicker(this.tickers[ind].name)
       this.tickers.splice(ind, 1);
+     
+      
       localStorage.setItem("tickersList", JSON.stringify(this.tickers));
       if (Math.round((this.tickers.length + 2) / 6) < this.filterpage) {
         this.filterpage--;
