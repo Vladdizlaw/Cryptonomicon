@@ -64,7 +64,12 @@
       >
         <p>{{ t.name }}/USD</p>
         <p>{{ t.fullName }}</p>
-        <h1 :class="{ down: t.price < t.oldprice, up: t.price > t.oldprice }">
+        <h1
+          :class="{
+            down: t.history[-1] < t.history[-2],
+            up: t.price > t.history[-2]
+          }"
+        >
           {{ t.price }}
         </h1>
         <h4 @click.stop="btnDelete(t.name)">Delete</h4>
@@ -96,11 +101,7 @@
 </template>
 
 <script>
-import {
-  getCurrencyData,
-  subscribeToTicker,
-  unsubscribeFromTicker
-} from "./api.js";
+import { subscribeToTicker, unsubscribeFromTicker } from "./api.js";
 export default {
   name: "App",
   data() {
@@ -118,7 +119,7 @@ export default {
   },
   watch: {
     ticker: function() {
-      //Смотрим за ticker, если он есть в вычисляемых свойствах  filteredTickers, записываем ошибку
+      //Смотрим за ticker, если он есть в вычисляемых свойствах  filteredTickers, записываем сообщение об ошибку
       //в объект data messages.errors
       if (this.tickersName.includes(this.ticker?.toUpperCase())) {
         this.messages.errors = "This crypto is selected alredy";
@@ -181,7 +182,7 @@ export default {
       if (this.graph[this.selected.name]) {
         let max = Math.max(...this.graph[this.selected.name]);
         let min = Math.min(...this.graph[this.selected.name]);
-        this.graph[this.selected.name].forEach(el => {
+        this.graph[this.selected.name]?.forEach(el => {
           let procent = 5 + ((el - min) * 95) / (max - min);
           result[el] = procent;
         });
@@ -195,6 +196,7 @@ export default {
     //затем проверяет localstorage и если он есть берет из него данные и записывает в tickers
     //после этого проверяет есть ли в url параметры filter и page и восстанавливает их если они есть
     //далее для всех тикеров в tickers запускает updatePrice()
+
     const resp = await fetch(
       "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
     );
@@ -217,20 +219,34 @@ export default {
       this.filterpage = url.searchParams.get("page");
     }
 
-    setInterval(() => {
+    /* setInterval(() => {
       this.updatePrice();
-    }, 5000);
+    }, 5000);*/
   },
   updated() {
     localStorage.setItem("tickersList", JSON.stringify(this.tickers));
   },
   methods: {
     updateTicker(tickerName, price) {
+      if (!price) {
+        return;
+      }
       this.tickers
         .filter(t => t.name === tickerName)
-        .forEach(t => (t.price = price));
+        .forEach(el => {
+          el.history.push(el.price);
+
+          el.price = price;
+          if (!this.graph[el.name]) {
+            this.graph[el.name] = [];
+          }
+          if (price) {
+            this.graph[el.name].push(price);
+          }
+        });
     },
-    async updatePrice() {
+
+    /*async updatePrice() {
       if (!this.tickers.length) {
         return;
       }
@@ -255,7 +271,7 @@ export default {
             )
           : (this.graph[el.name] = []);
       });
-    },
+    },*/
     chooseMes(mes) {
       this.ticker = mes;
     },
@@ -276,6 +292,7 @@ export default {
       const added = {
         name: this.ticker.toUpperCase(),
         price: "--------",
+        history: [],
         fullName: this.coinsList[this.ticker?.toUpperCase()]["FullName"]
       };
       this.tickers.push(added);
@@ -297,6 +314,7 @@ export default {
         this.selected = null;
       }
       unsubscribeFromTicker(this.tickers[ind].name);
+
       this.tickers.splice(ind, 1);
 
       localStorage.setItem("tickersList", JSON.stringify(this.tickers));
