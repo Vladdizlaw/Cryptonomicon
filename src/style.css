@@ -206,3 +206,7 @@ body{
 .up{
     background-color:rgba(29, 230, 29, 0.89);
 }
+.disabled{
+    background-color: rgb(240, 138, 163);
+    opacity: .7;
+}

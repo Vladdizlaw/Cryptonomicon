@@ -60,7 +60,7 @@
         v-for="(t, i) in filteredTickers"
         :key="i"
         class="walletblock"
-        :class="{ active: t === selected }"
+        :class="{ active: t === selected, disabled: t.price === '--' }"
       >
         <p>{{ t.name }}/USD</p>
         <p>{{ t.fullName }}</p>
@@ -291,7 +291,7 @@ export default {
       //Добаляет выбранный тикер в массив tickers
       const added = {
         name: this.ticker.toUpperCase(),
-        price: "--------",
+        price: "--",
         history: [],
         fullName: this.coinsList[this.ticker?.toUpperCase()]["FullName"]
       };
