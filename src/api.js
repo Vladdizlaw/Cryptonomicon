@@ -3,13 +3,16 @@ const tickersHandlers = new Map();
 const socket = new WebSocket(
   `wss://streamer.cryptocompare.com/v2?api_key=${API}`
 );
+let flagSetBTC=false
 let BTCPrice=undefined
-let flag=false
+let subscribedBTC=new Set()
 function setBtcPrice(){
-  if (tickersHandlers.has('BTC')){
+  if (flagSetBTC){
     console.log('ret')
     return
-  }
+  }  
+ 
+ 
   const message = JSON.stringify({
     action: "SubAdd",
     subs: [`5~CCCAGG~BTC~USD`]
@@ -20,14 +23,23 @@ function setBtcPrice(){
   socket.addEventListener('open',()=>{
     socket.send(message)
   },{once:true})
+   
   socket.addEventListener('message',e=>{
-   const  {PRICE:newPrice} = JSON.parse(e.data)
-  newPrice?BTCPrice=newPrice:null
-  console.log(newPrice)
+   const  {PRICE:newPrice,FROMSYMBOL:currency} = JSON.parse(e.data)
+    if( !!newPrice && currency==='BTC'){
+      BTCPrice=newPrice
+     
+    }
+   
+    
+ 
   })
+  flagSetBTC=true
+  console.log(flagSetBTC)
 }
 
 function subscribeToTickerOnWebsocket(tickerName) {
+  let countRuns=0
   const message = JSON.stringify({
     action: "SubAdd",
     subs: [`5~CCCAGG~${tickerName}~USD`]
@@ -43,37 +55,46 @@ function subscribeToTickerOnWebsocket(tickerName) {
     { once: true }
   );
   socket.addEventListener("message", e => {
-    let {INFO:info, TYPE: type, FROMSYMBOL: currency, PRICE: price } = JSON.parse(
+    let {INFO:info, TYPE: type, FROMSYMBOL: currency, PRICE: price, PARAMETER:parameter, TOSYMBOL:quote } = JSON.parse(
       e.data
     );
 
     if (type != "5" && type != '500') {
       return;
     }
-    if(tickerName=='BTC'){
+    if(currency=='BTC'&&!!price){
 
       BTCPrice=price
-    }else { setBtcPrice() }
-    if (tickerName!='BTC'&& type=='500' && info&&info.includes('We have not integrated ')){
-
+      flagSetBTC=true
+    
+    }
+    if (quote=='BTC'){
+      price=price*BTCPrice
+    }
+    if (tickerName!=='BTC'&& type=='500' && !!info &&info.includes('We have not integrated ')){
+        if (countRuns>0){
+          return
+        }
+        if (!flagSetBTC){
+          setBtcPrice()
+        }
+        let curBTC=parameter.split('~')[2]
         let message = JSON.stringify({
         action: "SubAdd",
-        subs: [`5~CCCAGG~${tickerName}~BTC`]
+        subs: [`5~CCCAGG~${curBTC}~BTC`]
       });
       if (socket.readyState == WebSocket.OPEN) {
         socket.send(message);
+       
+
       }
+
       socket.addEventListener('open',()=>{
         socket.send(message)
       },{once:true})
-      socket.addEventListener ('message', e=>{
-       const  {PRICE:newPrice} = JSON.parse(e.data)
-      
-        price=newPrice*BTCPrice
-        flag=true;
-       console.log('BTC:',BTCPrice,price)
-      
-      })
+       countRuns++
+        subscribedBTC.add(curBTC)
+     
       
     } 
     const handlers = tickersHandlers.get(currency) ?? [];
@@ -84,9 +105,11 @@ function subscribeToTickerOnWebsocket(tickerName) {
 
 function unsubscribeFromTickerOnWebsocket(tickerName) {
   let curr='USD'
-  if (flag){
+  if (subscribedBTC.has(tickerName)){
     curr='BTC'
-    flag=false
+   
+    subscribedBTC.delete(tickerName)
+   
   }
   const message = JSON.stringify({
     action: "SubRemove",
@@ -116,4 +139,11 @@ export const unsubscribeFromTicker = ticker => {
   //Отписка от тикера , просто удаляет тикер из tickerHandler
   tickersHandlers.delete(ticker);
   unsubscribeFromTickerOnWebsocket(ticker);
+  if(tickersHandlers.size===0){
+     flagSetBTC=false
+     console.log(flagSetBTC)
+    unsubscribeFromTickerOnWebsocket('BTC')
+   
+  }
 };
+window.btc=flagSetBTC

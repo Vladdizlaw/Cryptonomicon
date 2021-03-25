@@ -118,6 +118,7 @@ export default {
     };
   },
   watch: {
+    
     ticker: function() {
       //Смотрим за ticker, если он есть в вычисляемых свойствах  filteredTickers, записываем сообщение об ошибку
       //в объект data messages.errors
