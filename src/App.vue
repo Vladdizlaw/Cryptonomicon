@@ -118,7 +118,6 @@ export default {
     };
   },
   watch: {
-    
     ticker: function() {
       //Смотрим за ticker, если он есть в вычисляемых свойствах  filteredTickers, записываем сообщение об ошибку
       //в объект data messages.errors
@@ -235,6 +234,11 @@ export default {
       this.tickers
         .filter(t => t.name === tickerName)
         .forEach(el => {
+          //Отображаем цены в божеском виде
+
+          price > 1
+            ? (price = price.toFixed(2))
+            : (price = price.toPrecision(2));
           el.history.push(el.price);
 
           el.price = price;
