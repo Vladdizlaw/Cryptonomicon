@@ -3,6 +3,7 @@ const tickersHandlers = new Map();
 const socket = new WebSocket(
   `wss://streamer.cryptocompare.com/v2?api_key=${API}`
 );
+let countRuns = false;
 let flagSetBTC = false;
 let BTCPrice = undefined;
 let subscribedBTC = new Set();
@@ -34,11 +35,9 @@ function setBtcPrice() {
     }
   });
   flagSetBTC = true;
-  console.log(flagSetBTC);
 }
 
 function subscribeToTickerOnWebsocket(tickerName) {
-  let countRuns = 0;
   const message = JSON.stringify({
     action: "SubAdd",
     subs: [`5~CCCAGG~${tickerName}~USD`]
@@ -73,21 +72,28 @@ function subscribeToTickerOnWebsocket(tickerName) {
     if (quote == "BTC") {
       price = price * BTCPrice;
     }
-    if (type == "500" && !!info && info.includes("We have not integrated ")) {
-      if (countRuns > 0) {
+    if (
+      type == "500" &&
+      !!info &&
+      info.includes("We have not integrated ") &&
+      parameter.split("~")[3] === "USD"
+    ) {
+      if (countRuns) {
+        countRuns = !countRuns;
         return;
       }
-      countRuns++;
-      console.log(countRuns);
+
       if (!flagSetBTC) {
         setBtcPrice();
       }
+      countRuns = !countRuns;
 
       let curBTC = parameter.split("~")[2];
       let message = JSON.stringify({
         action: "SubAdd",
         subs: [`5~CCCAGG~${curBTC}~BTC`]
       });
+
       if (socket.readyState == WebSocket.OPEN) {
         socket.send(message);
       }
