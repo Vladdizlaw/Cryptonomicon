@@ -1,12 +1,16 @@
-const API = "1ee2f607bb918c3d5b039251e1cfc0bac70df8a3092d7f5e4f18bcc2618e2de2";
+//const API = "1ee2f607bb918c3d5b039251e1cfc0bac70df8a3092d7f5e4f18bcc2618e2de2";
+import Worker from "worker-loader!./worker.js";
+
 const tickersHandlers = new Map();
-const socket = new WebSocket(
-  `wss://streamer.cryptocompare.com/v2?api_key=${API}`
-);
+const worker = new Worker();
+const bc = new BroadcastChannel("wssChannel1");
+worker.start;
+
 let countRuns = false;
 let flagSetBTC = false;
 let BTCPrice = undefined;
 let subscribedBTC = new Set();
+
 function setBtcPrice() {
   if (flagSetBTC) {
     console.log("ret");
@@ -17,42 +21,32 @@ function setBtcPrice() {
     action: "SubAdd",
     subs: [`5~CCCAGG~BTC~USD`]
   });
-  if (socket.readyState == WebSocket.OPEN) {
-    socket.send(message);
-  }
-  socket.addEventListener(
-    "open",
-    () => {
-      socket.send(message);
-    },
-    { once: true }
-  );
 
-  socket.addEventListener("message", e => {
+  worker.postMessage(message);
+
+  worker.onmessage = e => {
     const { PRICE: newPrice, FROMSYMBOL: currency } = JSON.parse(e.data);
     if (!!newPrice && currency === "BTC") {
       BTCPrice = newPrice;
     }
-  });
+  };
+
   flagSetBTC = true;
 }
 
 function subscribeToTickerOnWebsocket(tickerName) {
+  bc.onmessage = e => {
+  //  console.log("onmessage", e.data);
+  };
   const message = JSON.stringify({
     action: "SubAdd",
     subs: [`5~CCCAGG~${tickerName}~USD`]
   });
-  if (socket.readyState == WebSocket.OPEN) {
-    socket.send(message);
-  }
-  socket.addEventListener(
-    "open",
-    () => {
-      socket.send(message);
-    },
-    { once: true }
-  );
-  socket.addEventListener("message", e => {
+
+  worker.postMessage(message);
+
+  bc.onmessage = e => {
+    console.log("answer from worker", e.data);
     let {
       INFO: info,
       TYPE: type,
@@ -94,24 +88,14 @@ function subscribeToTickerOnWebsocket(tickerName) {
         subs: [`5~CCCAGG~${curBTC}~BTC`]
       });
 
-      if (socket.readyState == WebSocket.OPEN) {
-        socket.send(message);
-      }
-
-      socket.addEventListener(
-        "open",
-        () => {
-          socket.send(message);
-        },
-        { once: true }
-      );
+      worker.postMessage(message);
 
       subscribedBTC.add(curBTC);
     }
     const handlers = tickersHandlers.get(currency) ?? [];
 
     handlers.forEach(handler => handler(price));
-  });
+  };
 }
 
 function unsubscribeFromTickerOnWebsocket(tickerName) {
@@ -125,16 +109,8 @@ function unsubscribeFromTickerOnWebsocket(tickerName) {
     action: "SubRemove",
     subs: [`5~CCCAGG~${tickerName}~${curr}`]
   });
-  if (socket.readyState == WebSocket.OPEN) {
-    socket.send(message);
-  }
-  socket.addEventListener(
-    "open",
-    () => {
-      socket.send(message);
-    },
-    { once: true }
-  );
+
+  worker.postMessage(message);
 }
 
 export const subscribeToTicker = (ticker, cb) => {
@@ -151,7 +127,7 @@ export const unsubscribeFromTicker = ticker => {
   unsubscribeFromTickerOnWebsocket(ticker);
   if (tickersHandlers.size === 0) {
     flagSetBTC = false;
-    console.log(flagSetBTC);
+
     unsubscribeFromTickerOnWebsocket("BTC");
   }
 };
