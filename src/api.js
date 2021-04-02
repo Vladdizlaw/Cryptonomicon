@@ -35,9 +35,7 @@ function setBtcPrice() {
 }
 
 function subscribeToTickerOnWebsocket(tickerName) {
-  bc.onmessage = e => {
-  //  console.log("onmessage", e.data);
-  };
+  
   const message = JSON.stringify({
     action: "SubAdd",
     subs: [`5~CCCAGG~${tickerName}~USD`]
@@ -46,7 +44,7 @@ function subscribeToTickerOnWebsocket(tickerName) {
   worker.postMessage(message);
 
   bc.onmessage = e => {
-    console.log("answer from worker", e.data);
+    //console.log("answer from worker", e.data);
     let {
       INFO: info,
       TYPE: type,

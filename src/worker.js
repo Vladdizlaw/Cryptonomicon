@@ -21,7 +21,7 @@ socket.onmessage=(e)=>{
            // console.log('Arrived to worker',eve.data)
              buferBC.push(eve.data) 
              if (socket.readyState == WebSocket.OPEN) {
-                socket.send(eve.data)
+                socket.send(buferBC.pop())
               }  
                      
                    socket.onopen=()=>{
