@@ -54,28 +54,48 @@
         </button>
       </div>
     </div>
-    <div class="forwallets">
-      <div
-        @click="selected === t ? (selected = null) : (selected = t)"
-        v-for="(t, i) in filteredTickers"
-        :key="i"
-        class="walletblock"
-        :class="{ active: t === selected, disabled: t.price === '--' }"
-      >
-        <p>{{ t.name }}/USD</p>
-        <p>{{ t.fullName }}</p>
-        <h1
-          :class="{
-            down: t.history[-1] < t.history[-2],
-            up: t.price > t.history[-2]
-          }"
+
+    <kinesis-container :duration="700" perspective="1000">
+      <div class="forwallets">
+        <div
+          @click="selected === t ? (selected = null) : (selected = t)"
+          v-for="(t, i) in filteredTickers"
+          :key="i"
+          :class="{ disabled: t.price === '--' }"
         >
-          {{ t.price }}
-        </h1>
-        <h4 @click.stop="btnDelete(t.name)">Delete</h4>
-      </div>
-    </div>
+          <kinesis-element :strength="6" type="depth"
+            ><div class="walletblock" :class="{ active: t === selected }">
+              <kinesis-element :strength="16" type="depth">
+                <p>{{ t.name }}/USD</p></kinesis-element
+              >
+              <kinesis-element :strength="15" type="depth"
+                ><p>{{ t.fullName }}</p>
+              </kinesis-element>
+              <kinesis-element :strength="17" type="depth">
+                <h1
+                  class="price"
+                  :class="{
+                    down: t.history[-1] < t.history[-2],
+                    up: t.price > t.history[-2]
+                  }"
+                >
+                  {{ t.price }}
+                </h1>
+              </kinesis-element>
+
+              <kinesis-element :strength="15" type="depth"
+                ><h4 @click.stop="btnDelete(t.name)">
+                  Delete
+                </h4></kinesis-element
+              >
+            </div></kinesis-element
+          >
+        </div>
+      </div></kinesis-container
+    >
+
     <hr />
+
     <div v-if="selected" class="outputdisplay">
       <button @click="selected = null" class="closeoutput">X</button>
 
@@ -102,6 +122,7 @@
 
 <script>
 import { subscribeToTicker, unsubscribeFromTicker } from "./api.js";
+//import { KinesisContainer, KinesisElement} from 'vue-kinesis'
 export default {
   name: "App",
   data() {
@@ -218,10 +239,6 @@ export default {
       this.filter = url.searchParams.get("filter");
       this.filterpage = url.searchParams.get("page");
     }
-
-    /* setInterval(() => {
-      this.updatePrice();
-    }, 5000);*/
   },
   updated() {
     localStorage.setItem("tickersList", JSON.stringify(this.tickers));
@@ -251,32 +268,6 @@ export default {
         });
     },
 
-    /*async updatePrice() {
-      if (!this.tickers.length) {
-        return;
-      }
-
-      let tickersNames = this.tickers.map(el => el.name);
-
-      let data = await getCurrencyData(tickersNames);
-
-      this.tickers.forEach(el => {
-        //Отображаем цены в божеском виде
-        el.oldprice = el.price;
-        el.price =
-          data[el.name] > 1
-            ? data[el.name].toFixed(2)
-            : data[el.name].toPrecision(2);
-        //Записываем цены с именем валюты для построения графика
-        this.graph[el.name]
-          ? this.graph[el.name].push(
-              data[el.name] > 1
-                ? data[el.name].toFixed(2)
-                : data[el.name].toPrecision(2)
-            )
-          : (this.graph[el.name] = []);
-      });
-    },*/
     chooseMes(mes) {
       this.ticker = mes;
     },
