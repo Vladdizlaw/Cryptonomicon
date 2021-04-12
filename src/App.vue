@@ -55,23 +55,23 @@
       </div>
     </div>
 
-    <kinesis-container :duration="700" perspective="1000">
+    <kinesis-container :duration="300" perspective="2500">
       <div class="forwallets">
         <div
           @click="selected === t ? (selected = null) : (selected = t)"
           v-for="(t, i) in filteredTickers"
           :key="i"
-          :class="{ disabled: t.price === '--' }"
+          
         >
-          <kinesis-element :strength="6" type="depth"
-            ><div class="walletblock" :class="{ active: t === selected }">
-              <kinesis-element :strength="16" type="depth">
+          <kinesis-element :strength="10" type="depth"
+            ><div class="walletblock" :class="{ active: t === selected,disabled: t.price === '--' }">
+              <kinesis-element :strength="14" type="depth">
                 <p>{{ t.name }}/USD</p></kinesis-element
               >
-              <kinesis-element :strength="15" type="depth"
+              <kinesis-element :strength="12" type="depth"
                 ><p>{{ t.fullName }}</p>
               </kinesis-element>
-              <kinesis-element :strength="17" type="depth">
+              <kinesis-element :strength="15" type="depth">
                 <h1
                   class="price"
                   :class="{
@@ -99,13 +99,14 @@
     <div v-if="selected" class="outputdisplay">
       <button @click="selected = null" class="closeoutput">X</button>
 
-      <div v-if="selected != null" class="graph">
+      <div v-if="selected != null" class="graph" ref="graph">
         <div
           v-for="(key, ind) in Object.keys(maxHeightBar)"
           :key="key"
           :title="key"
           :style="{ height: maxHeightBar[key] + '%' }"
           class="bar"
+          ref="bar"
           :class="{
             up:
               maxHeightBar[Object.keys(maxHeightBar)[ind - 1]] <
@@ -121,19 +122,20 @@
 </template>
 
 <script>
-import { subscribeToTicker, unsubscribeFromTicker } from "./api.js";
-//import { KinesisContainer, KinesisElement} from 'vue-kinesis'
+import { getCoinList, subscribeToTicker, unsubscribeFromTicker } from "./api.js";
+
 export default {
   name: "App",
   data() {
     return {
-      filter: "",
+      filter: "",//Фильтр
       filterpage: 1,
       ticker: "",
       tickers: [],
       coinsList: null,
       selected: null,
       graph: {},
+      maxBarElements:null,
 
       messages: { mess: null, errors: null }
     };
@@ -152,19 +154,25 @@ export default {
     },
 
     filterAndPage(value) {
-      //Смотрим за вычисляемым свойством  filterAndPage(оно возращает объект с filter:this.filter и
+      //Смотрим за вычисляемым свойством  filterAndPage(возращает объект с filter:this.filter и
       //page:this.filterpage),если оно меняется то меняем адресную строку
+      const url= new URL(window.location)
+      url.searchParams.set('filter',value.filter)
+      url.searchParams.set('page',value.page)
       window.history.pushState(
         true,
         "",
-        `${window.location.pathname}?filter=${value.filter}&page=${value.page}`
+       url
       );
     }
   },
 
   computed: {
+   
+
     filterAndPage() {
-      //Свойство возращающее this.filter и this.filterpage в ввиде объекта
+      //Свойство возращающее this.filter и this.filterpage в ввиде объекта.
+      //Нужна для отображения этих параметров в адресной строке
       return {
         filter: this.filter,
         page: this.filterpage
@@ -197,6 +205,7 @@ export default {
     },
 
     maxHeightBar() {
+      this.calculateMaxBarElements()
       //Вывод графика , возвращает объект с данными высоты бара и ключом именем выбранного элемента
       let result = {};
 
@@ -218,11 +227,9 @@ export default {
     //после этого проверяет есть ли в url параметры filter и page и восстанавливает их если они есть
     //далее для всех тикеров в tickers запускает updatePrice()
 
-    const resp = await fetch(
-      "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
-    );
-    const data = await resp.json();
+    const data=await getCoinList()
     this.coinsList = data.Data;
+    
     if (localStorage.tickersList) {
       this.tickers = JSON.parse(localStorage.getItem("tickersList"));
       this.tickers.forEach(ticker => {
@@ -234,17 +241,30 @@ export default {
     const url = new URL(window.location);
     if (
       url.searchParams.has("filter") ||
-      (this.filterpage = url.searchParams.get("page"))
+      url.searchParams.has("page")
     ) {
       this.filter = url.searchParams.get("filter");
       this.filterpage = url.searchParams.get("page");
     }
   },
+  mounted(){
+    window.addEventListener('resize',this.calculateMaxBarElements())
+  },
+  beforeUnmount(){
+     window.removeEventListener('resize',this.calculateMaxBarElements())},
   updated() {
     localStorage.setItem("tickersList", JSON.stringify(this.tickers));
   },
   methods: {
+    calculateMaxBarElements(){
+        const barWidth=this.$refs.bar?.clientWidth || 16
+        this.maxBarElements=this.$refs.graph?.clientWidth/barWidth
+    },
     updateTicker(tickerName, price) {
+    console.log('bar width:',this.$refs.bar?.clientWidth)
+     console.log('graph div width:',this.$refs.graph?.clientWidth)
+      this.calculateMaxBarElements()
+     console.log(this.maxBarElements)
       if (!price) {
         return;
       }
@@ -261,9 +281,14 @@ export default {
           el.price = price;
           if (!this.graph[el.name]) {
             this.graph[el.name] = [];
+            
           }
           if (price) {
             this.graph[el.name].push(price);
+            console.log(this.maxBarElements)
+            while  (this.graph[el.name].length>this.maxBarElements){
+              this.graph[el.name].shift()
+            }
           }
         });
     },

@@ -12,7 +12,7 @@ body{
     margin: 0 auto;
     width: 100%;
     height: 100vh;
-    overflow:auto;
+    overflow:hidden;
     flex-direction:column;
     justify-content:start;
     align-items: start;
@@ -138,8 +138,8 @@ body{
     gap: 0.1em;
     padding-top:0.5em  ;
     padding-left:0.5em  ;
-    overflow:auto;
-    scroll-behavior: auto;
+    overflow:hidden;
+   
 
 }
 
@@ -147,7 +147,7 @@ body{
     border:1px solid rgb(129, 13, 207);
 }
 .bar{
-    width:1em;
+    min-width:1em;
     height:50%;
     background-color: rgb(110, 108, 112);
 }

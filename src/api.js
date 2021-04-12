@@ -1,4 +1,4 @@
-//const API = "1ee2f607bb918c3d5b039251e1cfc0bac70df8a3092d7f5e4f18bcc2618e2de2";
+
 import Worker from "worker-loader!./worker.js";
 
 const tickersHandlers = new Map();
@@ -10,6 +10,15 @@ let countRuns = false;
 let flagSetBTC = false;
 let BTCPrice = undefined;
 let subscribedBTC = new Set();
+
+export const getCoinList  = async ()=>{
+  const resp = await fetch(
+    "https://min-api.cryptocompare.com/data/all/coinlist?summary=true"
+  );
+  const data = await resp.json();
+  return data
+}
+
 
 function setBtcPrice() {
   if (flagSetBTC) {
@@ -23,15 +32,9 @@ function setBtcPrice() {
   });
 
   worker.postMessage(message);
-
-  worker.onmessage = e => {
-    const { PRICE: newPrice, FROMSYMBOL: currency } = JSON.parse(e.data);
-    if (!!newPrice && currency === "BTC") {
-      BTCPrice = newPrice;
-    }
-  };
-
-  flagSetBTC = true;
+  flagSetBTC=true
+ 
+ 
 }
 
 function subscribeToTickerOnWebsocket(tickerName) {
@@ -56,7 +59,7 @@ function subscribeToTickerOnWebsocket(tickerName) {
     if (type != "5" && type != "500") {
       return;
     }
-    if (currency == "BTC" && !!price) {
+    if (currency == "BTC" && !!price && quote=='USD') {
       BTCPrice = price;
       flagSetBTC = true;
     }
