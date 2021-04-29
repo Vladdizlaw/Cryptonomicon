@@ -12,7 +12,7 @@ body{
     margin: 0 auto;
     width: 100%;
     height: 100vh;
-    overflow: hidden;
+    overflow:hidden;
     flex-direction:column;
     justify-content:start;
     align-items: start;
@@ -44,14 +44,16 @@ body{
     box-shadow:2px 3px rgb(46, 44, 44);
 }
 .forwallets{
-    width:100%;
-    display: flex;
-    flex-wrap: wrap;
+    position:relative;
+    width:100vw;
+    display:flex;
+    flex-wrap:no-wrap;
     padding: 1em 1em 1em 1em;
-    flex-direction: row;
-    justify-content: start;
-    margin:0 auto;
-    gap:0.5em;
+    flex-direction: row ;
+    justify-content:flex-start;
+   
+  
+    gap:1.5em;
 }
 .walletblock{
     border:1px solid rgb(46, 44, 44);
@@ -62,7 +64,10 @@ body{
     align-items: center;
     position:relative;
     box-shadow:2px 3px gray;
-    width: 15%;
+    width: 15vw;
+    height:auto;
+     padding-top:2em;
+     padding-bottom:2em;
     text-align: center;
     overflow:hidden;
 }
@@ -101,6 +106,9 @@ body{
     bottom:0.4em;
     right:0;
 }
+.price{
+    text-shadow: 2px 2px 4px rgb(80, 75, 76);
+}
 .outputdisplay{
     width:100%;
     position: relative;
@@ -120,7 +128,7 @@ body{
 }
 .graph{
     width:100%;
-    min-height:400px;
+    min-height:30vh;
     border:1px solid;
     display: flex;
     flex-direction: row;;
@@ -130,16 +138,16 @@ body{
     gap: 0.1em;
     padding-top:0.5em  ;
     padding-left:0.5em  ;
-    overflow:auto;
-    scroll-behavior: auto;
+    overflow:hidden;
+   
 
 }
 
 .active{
-    border:2px solid rgb(129, 13, 207);
+    border:1px solid rgb(129, 13, 207);
 }
 .bar{
-    width:1em;
+    min-width:1em;
     height:50%;
     background-color: rgb(110, 108, 112);
 }
@@ -205,4 +213,8 @@ body{
 }
 .up{
     background-color:rgba(29, 230, 29, 0.89);
+}
+.disabled{
+    background-color: rgb(240, 138, 163);
+    opacity: .6;
 }
