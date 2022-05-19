@@ -6,16 +6,16 @@
       @add-ticker="btnAdd"
     />
     <hr />
-    <filter-section
-      :tickersLength="this.tickers.length"
-      :filterpage="this.filterpage"
-      @filterpage="filterAndPageGet"
-    />
-
+    
     <wallet-section
       @selected="selectTicker"
       :filteredTickers="this.filteredTickers"
       @btn-delete="btnDelete"
+    />
+<filter-section
+      :tickersLength="this.tickers.length"
+      :filterpage="this.filterpage"
+      @filterpage="filterAndPageGet"
     />
 
     <hr />

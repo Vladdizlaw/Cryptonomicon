@@ -1,12 +1,16 @@
 <template>
   <div class="forinput">
-    <p>ticker</p>
-    <input
-      type="text"
-      v-model="ticker"
-      @keydown.enter="validation() ? btnAdd() : null"
-      class="generalinput"
-    />
+    <div class="forinput_ticket">
+      <p>Ticket</p>
+      <input
+        type="text"
+        v-model="ticker"
+        @keydown.enter="validation() ? btnAdd() : null"
+        class="generalinput"
+      />
+      <AddButton v-on:click="validation() ? btnAdd() : null" />
+    </div>
+
     <div v-if="messages.mes" class="messagesfield">
       <p
         v-for="(mes, ind) in messages.mes"
@@ -22,7 +26,6 @@
     <div v-if="messages.errors" class="errorsfield">
       <p>{{ messages.errors }}</p>
     </div>
-    <AddButton v-on:click="validation() ? btnAdd() : null" />
   </div>
 </template>
 <script>

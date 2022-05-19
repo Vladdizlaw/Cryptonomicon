@@ -1,4 +1,4 @@
  <template>
-  <button class="btn btn-add">add</button>
+  <button class="btn btn-add">Add</button>
 </template>
  

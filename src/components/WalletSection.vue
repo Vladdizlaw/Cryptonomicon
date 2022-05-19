@@ -13,15 +13,17 @@
               :class="{ active: t === selected, disabled: t.price === '--' }"
             >
               <kinesis-element :strength="14" type="depth">
-                <p>{{ t.name }}/USD</p></kinesis-element
+                <p class="walletblock_title">
+                  {{ t.name }}/USD
+                </p></kinesis-element
               >
               <kinesis-element :strength="12" type="depth"
                 ><p>{{ t.fullName }}</p>
               </kinesis-element>
               <kinesis-element :strength="15" type="depth">
-                <h1 class="price">
+                <p class="walletblock_price">
                   {{ t.price }}
-                </h1>
+                </p>
               </kinesis-element>
 
               <kinesis-element :strength="15" type="depth"
