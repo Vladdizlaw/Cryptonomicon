@@ -5,19 +5,23 @@ body {
   width: 100vw;
   height: 100vh;
   position: relative;
+  background-color: #2f2f2f;
 }
 
 .wraper {
-  background-color: #2f2f2f;
+  user-select: none;
+ background: #2f2f2f;
+box-shadow: 0px 0px 30px rgba(255, 255, 255, 0.25);
   display: flex;
-  margin: 0 auto;
+  margin: 0 0;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow:hidden;
   flex-direction: column;
   justify-content: start;
   align-items: start;
   color: #ffffff;
+
 }
 
 .forinput {
@@ -28,11 +32,30 @@ body {
   align-items: center;
   width: 100vw;
   height: 17%;
-  border: 1px solid rgb(28, 38, 46);
+  /* border: 1px solid rgb(28, 38, 46); */
   margin: 0 auto;
   /* gap:0.5rem; */
   font-size: max(1vw, 1.5rem);
   position: relative;
+  
+}
+.forinput:before{
+  content: "";
+  position: absolute;
+  bottom:0;
+  left:0;
+  width:35%;
+  border: 1px solid #FFFFFF;
+  filter: blur(2px);
+}
+.forinput:after{
+  content: "";
+  position: absolute;
+  bottom:0;
+  right:0;
+  width:35%;
+  border: 1px solid #FFFFFF;
+  filter: blur(2px);
 }
 .forinput_ticket {
   display: flex;
@@ -41,6 +64,9 @@ body {
   gap: 1rem;
   justify-content: center;
   align-items: center;
+}
+.forinput_ticket p {
+  font-size: max(1.3vw, 1rem);
 }
 .messagesfield {
   display: flex;
@@ -51,21 +77,22 @@ body {
 }
 .messagesfield p {
   border: 1px solid grey;
-  border-radius: 5px;
+  font-size: max(1.2vw, 1rem);
+  padding: 0.2rem;
+  border-radius: 10px;
   color: white;
   background-color: rgba(163, 157, 163, 0.5);
 }
 .errorsfield {
   position: absolute;
-  top: -2rem;
+  top: 0rem;
   left: 34%;
   width: 100%;
 }
 .errorsfield p {
   color: red;
   position: absolute;
-  top: 1em;
-  left: 1em;
+  font-size: max(1.5vw, 1rem);
 }
 .generalinput {
   font-family: "Roboto", sans-serif;
@@ -84,7 +111,7 @@ body {
 .btn-add {
   height: max(2vh, 2rem);
   padding: 0 1.2rem 0 1.2rem;
-
+  font-size: max(1vw, 1rem);
   background: rgba(255, 255, 255, 0.2);
   box-shadow: inset 0px 4px 4px rgba(255, 255, 255, 0.25);
   border-radius: 15px;
@@ -102,24 +129,82 @@ body {
   justify-content: center;
   gap: 0.3em;
   width: 100%;
-  max-height: 1.5em;
-  padding-left: 2em;
+  height: 17%;
+  top: 2rem;
 }
-
+.controlpages {
+  display: flex;
+  /* height: 1em; */
+  justify-content: center;
+  align-items: center;
+  gap: 0.3em;
+}
+.btn {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  backdrop-filter: blur(4px);
+  /* Note: backdrop-filter has minimal browser support */
+  height:  max(2.5vw, 2rem);
+  width: fit-content;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.btn img{
+  padding-top: 0.2rem;
+}
+.filter_input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.filter:before{
+  content: "";
+  position: absolute;
+  bottom:0;
+  left:0;
+  width:35%;
+  border: 1px solid #FFFFFF;
+  filter: blur(2px);
+}
+.filter:after{
+  content: "";
+  position: absolute;
+  bottom:0;
+  right:0;
+  width:35%;
+  border: 1px solid #FFFFFF;
+  filter: blur(2px);
+}
 .filterinput {
-  width: 3em;
-  height: 1em;
-  border-radius: 0.3em;
+  font-family: "Roboto", sans-serif;
+  width: max(5vw, 5rem);
+  font-size: max(1vw, 1rem);
+  height: max(2vh, 2rem);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  color: white;
+  padding: 0 0.5rem 0 0.5rem;
+  border-radius: 15px;
 }
 .forwallets {
   position: relative;
   width: 100vw;
-  height: 55%;
+  height: 50%;
   display: flex;
   flex-wrap: no-wrap;
-  padding: 1em 1em 1em 1em;
+  /* padding: 1em 1em 1em 1em; */
+  margin-top: 2rem;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
+  align-items: center;
+  padding-left:0.5rem;
 
   gap: 1.5em;
 }
@@ -141,112 +226,141 @@ body {
   align-items: center;
   position: relative;
   color: #12e000;
-  width: 15vw;
-  height: auto;
+  width: 12.5vw;
+  
+  height: 25vh;
   padding-top: 2rem;
   padding-bottom: 2rem;
   text-align: center;
   overflow: hidden;
+
+}
+@media screen and (orientation:portrait) {
+  .forwallets{
+    justify-content: start;
+    height:35%;
+    overflow-x: auto;
+  }
+  .walletblock {
+     width:27vw;
+    
+  }
+  .walletblock_title {
+    font-size: max(1.1vw, 0.9rem);
+
+  }
+  .walletblock_name {
+    font-size: max(0.8vw, 0.8rem);
+  }
+  .walletblock_price {
+    color: #12e000;
+    font-size: max(1.3vw, 1rem);
+    filter: blur(1px);
+  }
+   
+  }
+.walletblock:hover .walletblock_delete{
+  transform:translateY(200%)
+} 
+
+
+.walletblock_delete {
+  position:absolute;
+  top:-2.5rem;
+  right: 0;
+  width:2rem;
+  height:2rem;
+  transition:0.3s;
+}
+.walletblock_delete::before {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height:15px;
+  border: 1px solid  #12e000;
+  top: 0vh;
+  right: 1vw;
+  transform:skewX(45deg);
+  transition: 0.5s;
+}
+.walletblock_delete::after {
+  content: "";
+  position: absolute;
+  width: 1px;
+  height:15px;
+  border: 1px solid  #12e000;
+  top: 0vh;
+  right: 1vw;
+  transform:skewX(-45deg);
+  transition: 0.5s;
 }
 
-.walletblock::before {
-  content: "";
-  position: absolute;
-  width: 20%;
-  border: 1px dashed rgb(80, 45, 45);
-  top: 0.4em;
-  left: -30px;
-  transition: 0.5s;
+.walletblock_title {
+  font-size: max(1.4vw, 1.2rem);
 }
-.walletblock::after {
-  content: "";
-  position: absolute;
-  width: 20%;
-  border: 1px dashed rgb(80, 45, 45);
-  bottom: 0.4em;
-  right: -30px;
-  transition: 0.5s;
-}
-.walletblock:hover::before {
-  content: "";
-  position: absolute;
-  width: 20%;
-  border: 1px dashed rgb(80, 45, 45);
-  top: 0.4em;
-  left: 0;
-}
-.walletblock:hover:after {
-  content: "";
-  position: absolute;
-  width: 20%;
-  border: 1px dashed rgb(80, 45, 45);
-  bottom: 0.4em;
-  right: 0;
-}
-.walletblock_title{
-    font-size: max(1.5vw, 1.4rem); 
+.walletblock_name {
+  font-size: max(1vw, 1rem);
 }
 .walletblock_price {
   color: #12e000;
-  font-size: max(2vw, 1.5rem);
+  font-size: max(1.5vw, 1.3rem);
   filter: blur(1px);
 }
 .outputdisplay {
   width: 100%;
-  height: 22%;
+  height: 29%;
   position: relative;
   display: flex;
   flex-direction: column;
+  /* align-items:  end; */
+  justify-content: end;
+  /* padding-bottom: 1rem; */
 }
-.closeoutput {
-  color: rgb(232, 236, 238);
-  background-color: rgb(158, 8, 78);
-  position: absolute;
-  width: 1.5em;
-  height: 1.5em;
-  right: 10px;
-  top: 10px;
-  box-shadow: 1px 2px rgb(21, 1, 24);
-  z-index: 3;
-}
+
 .graph {
   width: 100%;
-  height: 30vh;
-  border: 1px solid;
+  height:90%;
+  bottom:0rem;
   display: flex;
   flex-direction: row;
   justify-content: start;
-  align-items: flex-end;
+  align-items: end;
   position: relative;
-  gap: 0.1em;
-  padding-top: 0.5em;
-  padding-left: 0.5em;
+  gap: 0.3em;
+  /* padding-top: 0.5em; */
+  /* padding-left: 0.5em; */
   overflow: hidden;
 }
 
 .active {
-  border: 1px solid rgb(129, 13, 207);
+  transform:scale(1.03)
 }
 .bar {
-  min-width: 1em;
+  min-width: 2rem;
   height: 50%;
   background-color: rgb(110, 108, 112);
-}
-.controlpages {
-  display: flex;
-  height: 1em;
-  justify-content: center;
-  align-items: center;
-  gap: 0.3em;
+  box-shadow: inset 0px 4px 4px rgba(255, 255, 255, 0.25);
+  border-radius: 10px 10px 0px 0px;
 }
 
 .down {
-  background-color: rgba(214, 0, 0, 0.767);
+  background: rgba(224, 0, 0, 0.5);
+  box-shadow: inset 0px 4px 4px rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  /* Note: backdrop-filter has minimal browser support */
+
+  border-radius: 10px 10px 0px 0px;
 }
 .up {
-  background-color: rgba(29, 230, 29, 0.89);
+  background: rgba(18, 224, 0, 0.5);
+  box-shadow: inset 0px 4px 4px rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  /* Note: backdrop-filter has minimal browser support */
+
+  border-radius: 10px 10px 0px 0px;
 }
 .disabled {
-  background-color: rgb(240, 138, 163);
+  color: #E00000;
+  filter: blur(1px);
   opacity: 0.6;
 }

@@ -1,6 +1,6 @@
 <template>
   <div v-if="selected" class="outputdisplay">
-    <button @click="closeGraph" class="closeoutput">X</button>
+    
 
     <div v-if="selected != null" class="graph" ref="graph">
       <div

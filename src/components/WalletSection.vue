@@ -4,6 +4,7 @@
       <div class="forwallets">
         <div
           @click="selected === t ? (selected = null) : (selected = t)"
+         
           v-for="(t, i) in filteredTickers"
           :key="i"
         >
@@ -11,14 +12,18 @@
             ><div
               class="walletblock"
               :class="{ active: t === selected, disabled: t.price === '--' }"
+              @click="showtarget"
             >
+            <div class="walletblock_delete" @click.stop="btnDelete(t.name)">
+
+            </div>
               <kinesis-element :strength="14" type="depth">
                 <p class="walletblock_title">
                   {{ t.name }}/USD
                 </p></kinesis-element
               >
               <kinesis-element :strength="12" type="depth"
-                ><p>{{ t.fullName }}</p>
+                ><p class="walletblock_name">{{ t.fullName }}</p>
               </kinesis-element>
               <kinesis-element :strength="15" type="depth">
                 <p class="walletblock_price">
@@ -26,11 +31,7 @@
                 </p>
               </kinesis-element>
 
-              <kinesis-element :strength="15" type="depth"
-                ><h4 @click.stop="btnDelete(t.name)">
-                  Delete
-                </h4></kinesis-element
-              >
+              
             </div></kinesis-element
           >
         </div>
@@ -56,6 +57,10 @@ export default {
     },
   },
   methods: {
+    showtarget(emit) {
+      console.log(emit)
+
+    },
     btnDelete(name) {
       this.$emit("btn-delete", name);
     },

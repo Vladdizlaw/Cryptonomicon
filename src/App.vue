@@ -5,14 +5,14 @@
       :tickersName="this.tickersName"
       @add-ticker="btnAdd"
     />
-    <hr />
-    
+    <div class="line"></div>
+
     <wallet-section
       @selected="selectTicker"
       :filteredTickers="this.filteredTickers"
       @btn-delete="btnDelete"
     />
-<filter-section
+    <filter-section
       :tickersLength="this.tickers.length"
       :filterpage="this.filterpage"
       @filterpage="filterAndPageGet"
@@ -58,6 +58,7 @@ export default {
       selected: null,
       graph: {},
       maxBarElements: null,
+      maxWallets: 6,
 
       // messages: { mess: null, errors: null },
     };
@@ -85,8 +86,8 @@ export default {
     },
     filteredTickers() {
       //Свойство отображающее тикеры согласно filter и разбивка на страницы
-      const start = (this.filterpage - 1) * 6;
-      const end = this.filterpage * 6;
+      const start = (this.filterpage - 1) * this.maxWallets;
+      const end = this.filterpage * this.maxWallets;
       return this.tickers
         .filter((el) => el.name.includes(this.filter.toUpperCase()))
         .slice(start, end);
@@ -136,15 +137,24 @@ export default {
     }
   },
   mounted() {
-    // window.addEventListener("resize", this.calculateMaxBarElements());
+    this.changMaxWallets();
+    window.addEventListener("orientationchange", this.changMaxWallets);
   },
   beforeUnmount() {
-    // window.removeEventListener("resize", this.calculateMaxBarElements());
+    window.removeEventListener("orientationchange", this.changMaxWallets);
   },
   updated() {
     localStorage.setItem("tickersList", JSON.stringify(this.tickers));
   },
   methods: {
+    changMaxWallets(event) {
+      !event ? (event.target.orientation = "90") : null;
+      if (event && event.target.orientation == "0") {
+        this.maxWallets = 3;
+      } else {
+        this.maxWallets = 6;
+      }
+    },
     filterAndPageGet(value) {
       //Свойство возращающее this.filter и this.filterpage в ввиде объекта.
       //Получение из компоеннта filter ,filterpage
