@@ -43,8 +43,8 @@ export default {
   props: {
     tickersLength: { type: Number },
     filterpage: {
-      type: Number,
-    },
+      type: Number
+    }
   },
   setup(props, { emit }) {
     const filter = ref("");
@@ -63,20 +63,20 @@ export default {
     function filterpageIncrease() {
       emit("filterpage", {
         filterpage: props.filterpage + 1,
-        filter: filter.value,
+        filter: filter.value
       });
       console.log("sending increase", props.filterpage + 1);
     }
     function filterpageDecrease() {
       emit("filterpage", {
         filterpage: Number(props.filterpage - 1),
-        filter: filter.value,
+        filter: filter.value
       });
     }
-    watch(filter, (val) => {
+    watch(filter, val => {
       emit("filterpage", { filterpage: 1, filter: val });
     });
-    watch(props.filterpage, (val) => {
+    watch(props.filterpage, val => {
       emit("filterpage", { filterpage: val, filter: filter.value });
     });
     onMounted(() => {
@@ -91,25 +91,8 @@ export default {
       changeAllVisiblePages,
       filterpageIncrease,
       filterpageDecrease,
-      filterpageToN,
+      filterpageToN
     };
-  },
-  // watch: {
-  //   filter() {
-  //     this.$emit("filterpage", {
-  //       filterpage: 1,
-  //       filter: this.filter,
-  //     });
-  //   },
-  // },
-  // filterpage() {
-  //   this.$emit("filterpage", {
-  //     filterpage: this.filterpage,
-  //     filter: this.filter,
-  //   });
-  // },
-  // methods: {
-
-  // },
+  }
 };
 </script>

@@ -33,7 +33,7 @@
 import {
   getCoinList,
   subscribeToTicker,
-  unsubscribeFromTicker,
+  unsubscribeFromTicker
 } from "./api.js";
 import InputSection from "./components/InputSection.vue";
 import WalletSection from "./components/WalletSection.vue";
@@ -46,7 +46,7 @@ export default {
     InputSection,
     WalletSection,
     GraphSection,
-    FilterSection,
+    FilterSection
   },
   data() {
     return {
@@ -58,7 +58,7 @@ export default {
       selected: null,
       graph: {},
       maxBarElements: null,
-      maxWallets: 6,
+      maxWallets: 6
 
       // messages: { mess: null, errors: null },
     };
@@ -71,7 +71,7 @@ export default {
       url.searchParams.set("filter", value.filter);
       url.searchParams.set("page", value.page);
       window.history.pushState(true, "", url);
-    },
+    }
   },
 
   computed: {
@@ -81,7 +81,7 @@ export default {
 
       return {
         filter: this.filter,
-        page: this.filterpage,
+        page: this.filterpage
       };
     },
     filteredTickers() {
@@ -89,12 +89,12 @@ export default {
       const start = (this.filterpage - 1) * this.maxWallets;
       const end = this.filterpage * this.maxWallets;
       return this.tickers
-        .filter((el) => el.name.includes(this.filter.toUpperCase()))
+        .filter(el => el.name.includes(this.filter.toUpperCase()))
         .slice(start, end);
     },
 
     tickersName() {
-      return this.tickers.map((el) => el.name);
+      return this.tickers.map(el => el.name);
     },
 
     maxHeightBar() {
@@ -104,14 +104,14 @@ export default {
       if (this.graph[this.selected?.name]) {
         let max = Math.max(...this.graph[this.selected?.name]);
         let min = Math.min(...this.graph[this.selected?.name]);
-        this.graph[this.selected.name]?.forEach((el) => {
+        this.graph[this.selected.name]?.forEach(el => {
           let procent = 5 + ((el - min) * 95) / (max - min);
           result[el] = procent;
         });
       }
 
       return result;
-    },
+    }
   },
   async created() {
     //при создпние запросом получает и записывает в coinList список валют,
@@ -124,8 +124,8 @@ export default {
 
     if (localStorage.tickersList) {
       this.tickers = JSON.parse(localStorage.getItem("tickersList"));
-      this.tickers.forEach((ticker) => {
-        subscribeToTicker(ticker.name, (price) => {
+      this.tickers.forEach(ticker => {
+        subscribeToTicker(ticker.name, price => {
           this.updateTicker(ticker.name, price);
         });
       });
@@ -163,7 +163,7 @@ export default {
       this.filterpage = value.filterpage;
       return {
         filter: this.filter,
-        page: this.filterpage,
+        page: this.filterpage
       };
     },
     selectTicker(data) {
@@ -192,8 +192,8 @@ export default {
         return;
       }
       this.tickers
-        .filter((t) => t.name === tickerName)
-        .forEach((el) => {
+        .filter(t => t.name === tickerName)
+        .forEach(el => {
           //Отображаем цены в божеском виде
 
           price > 1
@@ -223,10 +223,10 @@ export default {
         name: ticker.value.toUpperCase(),
         price: "--",
         history: [],
-        fullName: this.coinsList[ticker.value.toUpperCase()]["FullName"],
+        fullName: this.coinsList[ticker.value.toUpperCase()]["FullName"]
       };
       this.tickers.push(added);
-      subscribeToTicker(added.name, (price) => {
+      subscribeToTicker(added.name, price => {
         this.updateTicker(added.name, price);
       });
       //После этого очишает инпут добавления  и фильтр ,переставляет страницу на первую
@@ -239,7 +239,7 @@ export default {
     btnDelete(name) {
       //Удаляет из массива по имени ,  убирает с него выбор и если страниц стало меньше
       //то переставляет страницу и записывает в локал сторэйдж
-      let ind = this.tickers.findIndex((el) => el.name === name);
+      let ind = this.tickers.findIndex(el => el.name === name);
       if (this.tickers[ind] == this.selected) {
         this.selected = null;
       }
@@ -251,8 +251,8 @@ export default {
       if (Math.round((this.tickers.length + 2) / 6) < this.filterpage) {
         this.filterpage--;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

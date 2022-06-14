@@ -33,15 +33,15 @@ import AddButton from "./AddButton.vue";
 import { ref, reactive, computed, watch } from "vue";
 export default {
   components: {
-    AddButton,
+    AddButton
   },
   props: {
     coinsList: {
-      type: Object,
+      type: Object
     },
     tickersName: {
-      type: Array,
-    },
+      type: Array
+    }
   },
   emits: ["add-ticker"],
   setup(props, { emit }) {
@@ -53,7 +53,7 @@ export default {
       //сортирует по размеру и выводит 4 результата
       if (ticker.value !== "") {
         return Object.keys(props.coinsList)
-          .filter((el) => el.includes(ticker.value.toUpperCase()))
+          .filter(el => el.includes(ticker.value.toUpperCase()))
           .sort((a, b) => {
             return a.length - b.length;
           })
@@ -61,7 +61,7 @@ export default {
       }
       return null;
     });
-    watch(ticker, (val) => {
+    watch(ticker, val => {
       // console.log(val.toUpperCase());
       if (props.tickersName.includes(val.toUpperCase())) {
         messages.errors = "This crypto is selected alredy";
@@ -91,8 +91,8 @@ export default {
       messages,
       tickersMessages,
       validation,
-      btnAdd,
+      btnAdd
     };
-  },
+  }
 };
 </script>
