@@ -30,7 +30,7 @@
 </template>
 <script>
 import AddButton from "./AddButton.vue";
-
+import { ref, reactive, computed, watch } from "vue";
 export default {
   components: {
     AddButton,
@@ -43,56 +43,56 @@ export default {
       type: Array,
     },
   },
-  data() {
-    return {
-      ticker: "",
-      messages: { mess: null, errors: null },
-    };
-  },
-  computed: {
-    tickersMessages() {
+  emits: ["add-ticker"],
+  setup(props, { emit }) {
+    const ticker = ref("");
+    const messages = reactive({ mess: null, errors: null });
+    const tickersMessages = computed(() => {
+      console.log(ticker.value.toUpperCase());
       //Отоброжение подсказок при вводе в тикер.Проверяет на включение значения ticker в coinList ,
       //сортирует по размеру и выводит 4 результата
-      if (this.ticker != "") {
-        return Object.keys(this.coinsList)
-          .filter((el) => el.includes(this.ticker?.toUpperCase()))
+      if (ticker.value !== "") {
+        return Object.keys(props.coinsList)
+          .filter((el) => el.includes(ticker.value.toUpperCase()))
           .sort((a, b) => {
             return a.length - b.length;
           })
           .slice(0, 5);
       }
       return null;
-    },
-  },
-  watch: {
-    ticker: function() {
-      //Смотрим за ticker, если он есть в вычисляемых свойствах  filteredTickers, записываем сообщение об ошибку
-      //в объект data messages.errors
-      if (this.tickersName.includes(this.ticker?.toUpperCase())) {
-        this.messages.errors = "This crypto is selected alredy";
+    });
+    watch(ticker, (val) => {
+      // console.log(val.toUpperCase());
+      if (props.tickersName.includes(val.toUpperCase())) {
+        messages.errors = "This crypto is selected alredy";
       } else {
-        this.messages.errors = null;
+        messages.errors = null;
       }
 
-      this.messages.mes = this.tickersMessages;
-    },
-  },
-  methods: {
-    btnAdd() {
-      this.$emit("add-ticker", this.ticker);
-      this.ticker = "";
-    },
-    validation() {
+      messages.mes = tickersMessages;
+    });
+    function btnAdd() {
+      emit("add-ticker", ticker);
+      ticker.value = "";
+    }
+    function validation() {
       //Валидация инпута добавления
       if (
-        this.coinsList[this.ticker?.toUpperCase()] &&
-        !this.tickersName.includes(this.ticker?.toUpperCase())
+        props.coinsList[ticker.value.toUpperCase()] &&
+        !props.tickersName.includes(ticker.value.toUpperCase())
       ) {
         return true;
       } else {
         return false;
       }
-    },
+    }
+    return {
+      ticker,
+      messages,
+      tickersMessages,
+      validation,
+      btnAdd,
+    };
   },
 };
 </script>

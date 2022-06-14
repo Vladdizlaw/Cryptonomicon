@@ -37,67 +37,79 @@
   </div>
 </template>
 <script>
+import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 export default {
+  emits: ["filterpage"],
   props: {
     tickersLength: { type: Number },
     filterpage: {
       type: Number,
     },
   },
-  data() {
-    return {
-      filter: "",
-      allVisiblePages: 6,
-    };
-  },
-  watch: {
-    filter() {
-      this.$emit("filterpage", {
-        filterpage: 1,
-        filter: this.filter,
-      });
-    },
-  },
-  filterpage() {
-    this.$emit("filterpage", {
-      filterpage: this.filterpage,
-      filter: this.filter,
-    });
-  },
-  methods: {
-    changeAllVisiblePages(event) {
+  setup(props, { emit }) {
+    const filter = ref("");
+    const allVisiblePages = ref(6);
+    function changeAllVisiblePages(event) {
       console.log("event", event.target.orientation);
       if (event.target.orientation == "0") {
-        this.allVisiblePages = 3;
+        allVisiblePages.value = 3;
       } else {
-
-           this.allVisiblePages = 6;
-        }
-
-      
-    },
-    filterpageToN() {
-      this.$emit("filterpage", { filterpage: 1, filter: this.filter });
-    },
-    filterpageIncrease() {
-      this.$emit("filterpage", {
-        filterpage: this.filterpage + 1,
-        filter: this.filter,
+        allVisiblePages.value = 6;
+      }
+    }
+    function filterpageToN() {
+      emit("filterpage", { filterpage: 1, filter: filter.value });
+    }
+    function filterpageIncrease() {
+      emit("filterpage", {
+        filterpage: props.filterpage + 1,
+        filter: filter.value,
       });
-      console.log("sending increase", this.filterpage + 1);
-    },
-    filterpageDecrease() {
-      this.$emit("filterpage", {
-        filterpage: Number(this.filterpage - 1),
-        filter: this.filter,
+      console.log("sending increase", props.filterpage + 1);
+    }
+    function filterpageDecrease() {
+      emit("filterpage", {
+        filterpage: Number(props.filterpage - 1),
+        filter: filter.value,
       });
-    },
+    }
+    watch(filter, (val) => {
+      emit("filterpage", { filterpage: 1, filter: val });
+    });
+    watch(props.filterpage, (val) => {
+      emit("filterpage", { filterpage: val, filter: filter.value });
+    });
+    onMounted(() => {
+      window.addEventListener("orientationchange", changeAllVisiblePages);
+    });
+    onBeforeUnmount(() => {
+      window.removeEventListener("orientationchange", changeAllVisiblePages);
+    });
+    return {
+      filter,
+      allVisiblePages,
+      changeAllVisiblePages,
+      filterpageIncrease,
+      filterpageDecrease,
+      filterpageToN,
+    };
   },
-  mounted() {
-    window.addEventListener("orientationchange", this.changeAllVisiblePages);
-  },
-  beforeUnmount() {
-    window.removeEventListener("orientationchange", this.changeAllVisiblePages);
-  },
+  // watch: {
+  //   filter() {
+  //     this.$emit("filterpage", {
+  //       filterpage: 1,
+  //       filter: this.filter,
+  //     });
+  //   },
+  // },
+  // filterpage() {
+  //   this.$emit("filterpage", {
+  //     filterpage: this.filterpage,
+  //     filter: this.filter,
+  //   });
+  // },
+  // methods: {
+
+  // },
 };
 </script>

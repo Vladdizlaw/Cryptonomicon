@@ -148,8 +148,8 @@ export default {
   },
   methods: {
     changMaxWallets(event) {
-      !event ? (event.target.orientation = "90") : null;
-      if (event && event.target.orientation == "0") {
+      // !event ? (event.target.orientation = "90") : null;
+      if (event && event.target?.orientation == "0") {
         this.maxWallets = 3;
       } else {
         this.maxWallets = 6;
@@ -220,10 +220,10 @@ export default {
       //Добаляет выбранный тикер в массив tickers
 
       const added = {
-        name: ticker.toUpperCase(),
+        name: ticker.value.toUpperCase(),
         price: "--",
         history: [],
-        fullName: this.coinsList[ticker.toUpperCase()]["FullName"],
+        fullName: this.coinsList[ticker.value.toUpperCase()]["FullName"],
       };
       this.tickers.push(added);
       subscribeToTicker(added.name, (price) => {
