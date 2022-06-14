@@ -37,30 +37,33 @@
     >
   </div>
 </template>
+
 <script>
+import { ref, watch } from "vue";
 export default {
+  emits: ["selected", "btn-delete"],
   props: {
     filteredTickers: {
       type: Array
     }
   },
-  data() {
-    return {
-      selected: null
-    };
-  },
-  watch: {
-    selected: function() {
-      this.$emit("selected", this.selected);
-    }
-  },
-  methods: {
-    showtarget(emit) {
+  setup(props, { emit }) {
+    const selected = ref(null);
+    watch(selected, () => {
+      emit("selected", selected.value);
+    });
+
+    function showtarget(emit) {
       console.log(emit);
-    },
-    btnDelete(name) {
-      this.$emit("btn-delete", name);
     }
+    function btnDelete(name) {
+      emit("btn-delete", name);
+    }
+    return {
+      selected,
+      showtarget,
+      btnDelete
+    };
   }
 };
 </script>
